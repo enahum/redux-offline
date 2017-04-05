@@ -8,6 +8,7 @@ import discard from './discard';
 export default {
   rehydrate: true,
   persist,
+  persistOptions: {},
   detectNetwork,
   batch,
   effect,
