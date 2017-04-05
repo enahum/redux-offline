@@ -32,7 +32,7 @@ export const createOfflineStore = (
 
   // create autoRehydrate enhancer if required
   const offlineEnhancer = config.persist && config.rehydrate
-    ? compose(offlineMiddleware, enhancer, autoRehydrate())
+    ? compose(autoRehydrate(config.persistOptions.autoRehydrate), offlineMiddleware, enhancer)
     : compose(offlineMiddleware, enhancer);
 
   // create store
