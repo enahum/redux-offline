@@ -19,10 +19,10 @@ export const createOfflineStore = (
   enhancer: any,
   userConfig: $Shape<Config> = {}
 ) => {
-  config.log && console.log('user config', userConfig);
+  userConfig.log && console.log('user config', userConfig);
   const config = applyDefaults(userConfig);
 
-  config.log && console.log('Creating offline store', config);
+  userConfig.log && console.log('Creating offline store', config);
 
   // wraps userland reducer with a top-level
   // reducer that handles offline state updating
