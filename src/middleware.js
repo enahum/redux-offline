@@ -8,10 +8,18 @@ const after = (timeout = 0) => {
   return new Promise(resolve => setTimeout(resolve, timeout));
 };
 
-const complete = (action: ResultAction | function, success: boolean, payload: {}): ResultAction => {
+const complete = (action: any, success: boolean, payload: {}): ResultAction => {
   if (typeof action === 'function') {
     return (dispatch, getState) => {
+      // Must send an action with meta.completed = true to finish commit.
+      dispatch({
+        type: '@@OFFLINE_ACTION_COMPLETE',
+        meta: {
+          completed: true
+        }
+      });
       action(success, payload);
+      return after();
     }
   }
   
