@@ -93,6 +93,13 @@ export const createOfflineMiddleware = (config: Config) => (store: any) => (next
   if (action.type === OFFLINE_SEND && actions.length > 0 && !state.offline.busy) {
     send(actions[0], store.dispatch, config, state.offline.retryCount);
   }
+  
+  // sometimes actions need to be rolled back if we are offline. This can be accomplished
+  // by setting offlineRollback to true in the meta.offline property of the action.
+  if (actions.length > 0 && !state.offline.online && actions[0].meta.offline.offlineRollback) {
+    const action = actions[0];
+    store.dispatch(complete(action.meta.offline.rollback, false, {}));
+  }
 
   return result;
 };
