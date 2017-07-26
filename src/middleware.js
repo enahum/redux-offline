@@ -22,7 +22,7 @@ const complete = (action: any, success: boolean, payload: {}): ResultAction => {
       return after();
     }
   }
-  
+
   return { ...action, payload, meta: { ...(action.meta || {}), success, completed: true } };
 };
 
@@ -50,6 +50,9 @@ const send = (action: OfflineAction, dispatch, config: Config, retries = 0) => {
       const delay = config.retry(action, retries);
       if (delay != null) {
         console.log('Retrying action', action.type, 'with delay', delay);
+        if (typeof metadata.onRetryScheduled === 'function') {
+          metadata.onRetryScheduled();
+        }
         return dispatch(scheduleRetry(delay));
       } else {
         console.log('Discarding action', action.type, 'because retry did not return a delay');
@@ -76,11 +79,6 @@ export const createOfflineMiddleware = (config: Config) => (store: any) => (next
     !state.offline.retryScheduled &&
     state.offline.online
   ) {
-    const nextAction = actions[0];
-    if (nextAction.meta.offline.replay) {
-      const {meta, ...otherActionData} = nextAction;
-      store.dispatch(otherActionData);
-    }
     send(actions[0], store.dispatch, config, state.offline.retryCount);
   }
 
@@ -98,7 +96,7 @@ export const createOfflineMiddleware = (config: Config) => (store: any) => (next
   if (action.type === OFFLINE_SEND && actions.length > 0 && !state.offline.busy) {
     send(actions[0], store.dispatch, config, state.offline.retryCount);
   }
-  
+
   // sometimes actions need to be rolled back if we are offline. This can be accomplished
   // by setting offlineRollback to true in the meta.offline property of the action.
   if (actions.length > 0 && !state.offline.online && actions[0].meta.offline.offlineRollback) {
