@@ -76,6 +76,11 @@ export const createOfflineMiddleware = (config: Config) => (store: any) => (next
     !state.offline.retryScheduled &&
     state.offline.online
   ) {
+    const nextAction = actions[0];
+    if (nextAction.meta.offline.replay) {
+      const {meta, ...otherActionData} = nextAction;
+      store.dispatch(otherActionData);
+    }
     send(actions[0], store.dispatch, config, state.offline.retryCount);
   }
 
